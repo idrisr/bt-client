@@ -1,6 +1,7 @@
 from bencode import bencode, bdecode
 from hashlib import sha1
 from urllib import quote, urlencode
+import requests
 import sys
 
 
@@ -41,7 +42,7 @@ class Torrent(object):
 
     def get_peer_id(self):
         if not hasattr(self, 'peer_id'):
-            self.peer_id = 123456789
+            self.peer_id = 's' * 20
 
 
     def get_left(self):
@@ -107,3 +108,5 @@ if __name__ == '__main__':
     t.bdecode()
     t.make_request()
     print t.request
+    r = requests.get(t.request)
+    print r.text
