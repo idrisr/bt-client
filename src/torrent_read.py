@@ -23,7 +23,7 @@ class Torrent(object):
 
     def get_compact(self):
         if not hasattr(self, 'compact'):
-            self.compact = 0
+            self.compact = 1
 
 
     def get_port(self):
