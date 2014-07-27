@@ -1,8 +1,10 @@
 from bencode import bencode, bdecode
 from hashlib import sha1
 from urllib import quote, urlencode
+from random import sample
 import requests
 import sys
+import string
 
 
 class Torrent(object):
@@ -21,7 +23,7 @@ class Torrent(object):
 
     def get_compact(self):
         if not hasattr(self, 'compact'):
-            self.compact = 1
+            self.compact = 0
 
 
     def get_port(self):
@@ -32,6 +34,7 @@ class Torrent(object):
     def get_event(self):
         """ started, completed, or stopped """
         if not hasattr(self, 'event'):
+            #self.event = 'started'
             self.event = 'started'
 
 
@@ -42,15 +45,17 @@ class Torrent(object):
 
     def get_peer_id(self):
         if not hasattr(self, 'peer_id'):
-            self.peer_id = 's' * 20
+            rand_str = ''.join(sample(string.ascii_letters +  string.digits, 20))
+            #self.peer_id = 'idris-cl' + rand_str
+            self.peer_id = rand_str
 
 
     def get_left(self):
         if not hasattr(self, 'left'):
-            self.left = 123456789
+            self.left = 1277987
 
     def get_info_hash(self):
-        self.info_hash = sha1(bencode(t.info)).digest()
+        self.info_hash = sha1(bencode(self.info)).digest()
 
 
     def bdecode(self):
@@ -58,7 +63,7 @@ class Torrent(object):
             file_content = open(self.file_name, 'r').read()
             content = bdecode(file_content)
         except IOError:
-            print 'file not found'
+            print '%s file not found' % (self.file_name)
             sys.exit(1)
 
         # TODO: better way to make all dicts into objects, ie avoid torrent.info['name']
@@ -103,7 +108,12 @@ class Torrent(object):
 
 
 if __name__ == '__main__':
-    filename = '../torrent/flagfromserver.torrent'
+    try: 
+        filename = sys.argv[1]
+    except IndexError:
+        filename = '../torrent/flagfromserver.torrent'
+        #filename = '../torrent/linuxmint-16-cinnamon-dvd-64bit.torrent'
+
     t = Torrent(filename)
     t.bdecode()
     t.make_request()
