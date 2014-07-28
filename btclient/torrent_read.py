@@ -56,7 +56,8 @@ class Torrent(object):
             if not hasattr(self, 'left'):
                 self.left = self.info['length']
         except KeyError:
-                self.left = self.info['files'][0]['length']
+            #TODO: calculate properly for multi file downloads
+            self.left = self.info['files'][0]['length']
 
 
 
