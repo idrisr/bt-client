@@ -30,6 +30,16 @@ class ResponseHandler(object):
             self.ip.append(tuple(bs[i:i+n]))
 
 
+    def __repr__(self):
+        print_fields = ['_content',
+                'ip',
+                'peers',
+                'status_code',
+                'url']
+
+        return '\n'.join(['%s:\t%r' % (field, getattr(self, field), ) for field in print_fields])
+
+
 if __name__ == '__main__':
     try: 
         filename = sys.argv[1]
@@ -43,4 +53,4 @@ if __name__ == '__main__':
     response = requests.get(t.request)
     response_handler = ResponseHandler()
     response_handler.parse_response(response)
-    response_handler.get_peer_id()
+    response_handler.get_peer_ip()
