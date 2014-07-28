@@ -76,7 +76,7 @@ class Torrent(object):
             uploaded 0 - when is this not 0?
             compact = 1
             port between 6881 and 6889
-            info_hash 
+            info_hash
             event: started completed stopped
             downloaded: total amount downloaded so far
             peer_id: A string of length 20 which this downloader uses as its id.
@@ -89,13 +89,13 @@ class Torrent(object):
                 'compact': self.get_compact,
                 'port': self.get_port,
                 'event': self.get_event,
-                'downloaded': self.get_downloaded, 
+                'downloaded': self.get_downloaded,
                 'peer_id': self.get_peer_id,
                 'left':  self.get_left,
                 'info_hash': self.get_info_hash
                 }
 
-        #make sure all the values we need are set 
+        #make sure all the values we need are set
         for v in d.values():
             v()
 
@@ -107,8 +107,22 @@ class Torrent(object):
         self.request = '%s?%s' % (self.announce, urlencode(request_params), )
 
 
+    def __repr__(self):
+        print_fields = ['file_name',
+                'uploaded',
+                'compact',
+                'port',
+                'event',
+                'downloaded',
+                'peer_id',
+                'left',
+                'info_hash']
+
+        return '\n'.join(['%s:\t%r' % (field, getattr(self, field), ) for field in print_fields])
+
+
 if __name__ == '__main__':
-    try: 
+    try:
         filename = sys.argv[1]
     except IndexError:
         filename = '../torrent/flagfromserver.torrent'
