@@ -51,8 +51,13 @@ class Torrent(object):
 
 
     def get_left(self):
-        if not hasattr(self, 'left'):
-            self.left = 1277987
+        try:
+            if not hasattr(self, 'left'):
+                self.left = self.info['length']
+        except KeyError:
+                self.left = self.info['files'][0]['length']
+
+
 
     def get_info_hash(self):
         self.info_hash = sha1(bencode(self.info)).digest()
@@ -65,6 +70,7 @@ class Torrent(object):
         except IOError:
             print '%s file not found' % (self.file_name)
             sys.exit(1)
+
 
         # TODO: better way to make all dicts into objects, ie avoid torrent.info['name']
         for k, v in content.items():
@@ -130,7 +136,7 @@ if __name__ == '__main__':
 
     t = Torrent(filename)
     t.bdecode()
-    t.make_request()
-    print t.request
-    r = requests.get(t.request)
-    print r.text
+    #t.make_request()
+    #print t.request
+    #r = requests.get(t.request)
+    #print r.text
