@@ -46,6 +46,7 @@ class Torrent(object):
 
     def get_peer_id(self):
         if not hasattr(self, 'peer_id'):
+            # TODO: use peer_id naming convention
             rand_str = ''.join(sample(string.ascii_letters +  string.digits, 20))
             #self.peer_id = 'idris-cl' + rand_str
             self.peer_id = rand_str

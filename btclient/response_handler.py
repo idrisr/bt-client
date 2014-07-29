@@ -57,7 +57,5 @@ if __name__ == '__main__':
     t = Torrent(filename)
     t.make_request()
     response = requests.get(t.request)
-    response_handler = ResponseHandler()
-    response_handler.parse_response(response)
+    response_handler = ResponseHandler(response)
     response_handler.get_peer_ip()
-    r = response_handler
