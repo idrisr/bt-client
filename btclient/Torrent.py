@@ -5,6 +5,7 @@ from random import sample
 import requests
 import sys
 import string
+from math import ceil
 
 
 class Torrent(object):
@@ -79,6 +80,9 @@ class Torrent(object):
         for k, v in content.items():
             setattr(self, k, v)
 
+    def get_pieces(self):
+        self.pieces = ceil(self.info['length'] * 1.0 / self.info['piece length'])
+
 
     def make_request(self, **args):
         '''
@@ -101,7 +105,8 @@ class Torrent(object):
                 'downloaded': self.get_downloaded,
                 'peer_id': self.get_peer_id,
                 'left':  self.get_left,
-                'info_hash': self.get_info_hash
+                'info_hash': self.get_info_hash,
+                'pieces': self.get_pieces
                 }
 
         #make sure all the values we need are set
@@ -125,6 +130,7 @@ class Torrent(object):
                 'downloaded',
                 'peer_id',
                 'left',
+                'pieces',
                 'info_hash']
 
         return '\n'.join(['%s:\t%r' % (field, getattr(self, field), ) for field in print_fields])
@@ -139,7 +145,7 @@ if __name__ == '__main__':
 
     t = Torrent(filename)
     t.bdecode()
-    #t.make_request()
+    t.make_request()
     #print t.request
     #r = requests.get(t.request)
     #print r.text
