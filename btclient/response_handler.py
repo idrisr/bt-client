@@ -1,4 +1,4 @@
-from torrent_read import Torrent
+from Torrent import Torrent
 from bencode import bdecode
 import sys
 import requests

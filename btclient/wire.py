@@ -1,5 +1,4 @@
-'''
-class Wire(object):
+from Torrent import Torrent
 
     def __init__(self):
         am_choking
