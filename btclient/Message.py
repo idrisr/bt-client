@@ -1,4 +1,7 @@
 from abc import ABCMeta, abstractmethod
+from struct import Struct, unpack
+from bitarray import bitarray
+from binascii import b2a_hex
 
 class BaseMessage(object):
     """ Abstract Base Class for specified message classes"""
@@ -6,6 +9,7 @@ class BaseMessage(object):
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
+        self.raw_payload = kwargs.get('raw_payload')
 
     @abstractmethod
     def is_message_for(cls, id):
@@ -15,12 +19,14 @@ class BaseMessage(object):
     def __repr__(self):
         return "%s" % (self.__class__.__name__, )
 
+    @staticmethod
+    def hex_print(s):
+        return b2a_hex(s)
+
 
 class MessageKeepAlive(BaseMessage):
     def __init__(self, **kwargs):
         super(MessageKeepAlive, self).__init__(**kwargs)
-        # TODO: determine right place to set len
-        #self.len_ = kwargs.get('len_')
 
     @classmethod
     def is_message_for(cls, id):
@@ -70,8 +76,12 @@ class MessageNotInterested(BaseMessage):
         return False
 
 class MessageHave(BaseMessage):
+    payload_unpacker = Struct('>I')
+
     def __init__(self, **kwargs):
         super(MessageHave, self).__init__(**kwargs)
+        self.payload = self.payload_unpacker.unpack(self.raw_payload)[-1]
+
 
     @classmethod
     def is_message_for(cls, id):
@@ -79,9 +89,15 @@ class MessageHave(BaseMessage):
             return True
         return False
 
+    def __repr__(self):
+        return "%s: %r" % (self.__class__.__name__, BaseMessage.hex_print(self.raw_payload),)
+
 class MessageBitField(BaseMessage):
     def __init__(self, **kwargs):
         super(MessageBitField, self).__init__(**kwargs)
+        self.payload = bitarray()
+        self.payload.frombytes(self.raw_payload)
+
 
     @classmethod
     def is_message_for(cls, id):
@@ -89,9 +105,17 @@ class MessageBitField(BaseMessage):
             return True
         return False
 
+    def __repr__(self):
+        return "%s: %r" % (self.__class__.__name__, BaseMessage.hex_print(self.raw_payload),)
+
 class MessageRequest(BaseMessage):
     def __init__(self, **kwargs):
         super(MessageRequest, self).__init__(**kwargs)
+
+    def set_properties(self, **kwargs):
+        self.index = kwargs.get('index')
+        self.begin = kwargs.get('begin')
+        self.length = kwargs.get('length')
 
     @classmethod
     def is_message_for(cls, id):
@@ -103,6 +127,11 @@ class MessagePiece(BaseMessage):
     def __init__(self, **kwargs):
         super(MessagePiece, self).__init__(**kwargs)
 
+    def set_properties(self, **kwargs):
+        self.index = kwargs.get('index')
+        self.begin = kwargs.get('begin')
+        self.block = kwargs.get('block')
+
     @classmethod
     def is_message_for(cls, id):
         if id == 7:
@@ -112,6 +141,11 @@ class MessagePiece(BaseMessage):
 class MessageCancel(BaseMessage):
     def __init__(self, **kwargs):
         super(MessageCancel, self).__init__(**kwargs)
+
+    def set_properties(self, **kwargs):
+        self.index = kwargs.get('index')
+        self.begin = kwargs.get('begin')
+        self.block = kwargs.get('block')
 
     @classmethod
     def is_message_for(cls, id):
@@ -129,21 +163,13 @@ class MessagePort(BaseMessage):
             return True
         return False
 
-def MessageFactory(id):
+def MessageFactory(**kwargs):
     """
     Factory function to iterate through Messages's subclasses at run-time
     and return an instance of the matching subclass.
     """
-
     for cls in BaseMessage.__subclasses__():
-        if cls.is_message_for(id):
-            return cls(id=id)
+        if cls.is_message_for(kwargs.get('id')):
+            return cls(**kwargs)
 
     raise ValueError, "Could not find a message type for message id: %s" % id
-
-
-if __name__ == '__main__':
-    ids = [None]
-    ids.extend(range(10))
-    for id in ids:
-        print MessageFactory(id).__class__.__name__
